@@ -32,16 +32,13 @@ public class UserService {
         return Optional.empty(); // Invalid credentials
     }
 
-    // Get all users (Admin access only)
+    // Get all users
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    // Get user by ID (accessible to admin and the user itself)
-    public Optional<User> getUserById(Long userId, Long requestingUserId, String role) {
-        if (role.equals("admin") || requestingUserId.equals(userId)) {
-            return userRepository.findById(userId);
-        }
-        return Optional.empty(); // Unauthorized
+    // Get user by ID
+    public Optional<User> getUserById(Long userId) {
+        return userRepository.findById(userId);
     }
 }

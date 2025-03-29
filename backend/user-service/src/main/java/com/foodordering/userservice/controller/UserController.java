@@ -2,7 +2,6 @@ package com.foodordering.userservice.controller;
 
 import com.foodordering.userservice.model.User;
 import com.foodordering.userservice.service.UserService;
-import com.foodordering.userservice.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +16,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private JwtUtil jwtUtil;
-
     // Sign-Up endpoint
     @PostMapping("/signup")
     public ResponseEntity<User> signUp(@RequestBody User user) {
@@ -31,23 +27,22 @@ public class UserController {
     public ResponseEntity<String> signIn(@RequestParam String email, @RequestParam String password) {
         Optional<User> user = userService.signIn(email, password);
         if (user.isPresent()) {
-            String token = jwtUtil.generateToken(user.get().getEmail(), user.get().getRole());
-            return ResponseEntity.ok(token);  // Return the generated token
+            return ResponseEntity.ok("Sign-in successful");
         } else {
-            return ResponseEntity.status(401).body("Invalid credentials");  // Invalid credentials
+            return ResponseEntity.status(401).body("Invalid credentials");
         }
     }
 
-    // Get All Users (Admin only)
-    @GetMapping("/admin/all")
+    // Get All Users
+    @GetMapping("/all")
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
 
-    // Get User by ID (Admin and self-access)
+    // Get User by ID
     @GetMapping("/{userId}")
-    public ResponseEntity<User> getUserById(@PathVariable Long userId, @RequestParam Long requestingUserId, @RequestParam String role) {
-        Optional<User> user = userService.getUserById(userId, requestingUserId, role);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(403).build());
+    public ResponseEntity<User> getUserById(@PathVariable Long userId) {
+        Optional<User> user = userService.getUserById(userId);
+        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
